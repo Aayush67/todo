@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Todo} from '../model/Todo';
 import {TodoService} from '../services/TodoService';
 import {Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {EventDialogComponent} from '../dialog/eventDialog.component';
-import {MatDialog} from '@angular/material';
+import {MatDialog, MatPaginator, MatTableDataSource} from '@angular/material';
 
 @Component({
   selector: 'app-list',
@@ -14,7 +14,10 @@ import {MatDialog} from '@angular/material';
 export class ListTodoComponent implements OnInit {
   todoList: Todo [];
   displayedColumns: string[] = ['select', 'id', 'title', 'description', 'time' , 'actions'];
-  dataSource = new BehaviorSubject([]);
+  // dataSource = new BehaviorSubject([]);
+  dataSource = new MatTableDataSource<Todo>();
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+
 
   constructor(private todoService: TodoService, private router: Router , private dialog: MatDialog) { }
 
@@ -23,7 +26,11 @@ export class ListTodoComponent implements OnInit {
 */
   ngOnInit() {
     this.todoList = this.todoService.getTodoList();
-    this.dataSource.next(this.todoList);
+    this.dataSource = new MatTableDataSource(this.todoList);
+    this.dataSource.paginator = this.paginator;
+    console.log(this.dataSource);
+
+    // this.dataSource.next(this.todoList);
   }
 
 /*
@@ -40,9 +47,10 @@ export class ListTodoComponent implements OnInit {
   deleteSingleTodoItem(item) {
     const indexOfDeleteTodo = this.todoList.indexOf(item);
     this.todoList.splice(indexOfDeleteTodo, 1);
+    this.dataSource = new MatTableDataSource(this.todoList);
 
     //Detect changes on deletion of todo and update mat-table
-    this.dataSource.next(this.todoList);
+    // this.dataSource.next(this.todoList);
     if (this.todoList.length === 0) {
       this.router.navigate(['/add']);
     }
@@ -65,8 +73,9 @@ export class ListTodoComponent implements OnInit {
       }
       return !todo.checked;
     })
+    this.dataSource = new MatTableDataSource(this.todoList);
     this.todoService.setTodoList(this.todoList);
-    this.dataSource.next(this.todoList);
+    // this.dataSource.next(this.todoList);
     if (!atLeastOneIsChecked) {
       this.dialog.open(EventDialogComponent, {
         data: {

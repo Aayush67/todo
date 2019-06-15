@@ -12,7 +12,7 @@ import {
   MatCheckboxModule,
   MatDatepickerModule, MatDialogModule,
   MatFormFieldModule, MatIconModule,
-  MatInputModule,
+  MatInputModule, MatPaginatorModule,
   MatTableModule,
   MatToolbarModule, MatTooltipModule
 } from '@angular/material';
@@ -46,7 +46,8 @@ import {EventDialogComponent} from './dialog/eventDialog.component';
     MatDialogModule,
     MatIconModule,
     MatTooltipModule,
-    MatButtonModule
+    MatButtonModule,
+    MatPaginatorModule
 
   ],
   providers: [MatDatepickerModule,
