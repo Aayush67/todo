@@ -22,52 +22,45 @@ export class AddTodoComponent implements OnInit {
   */
   ngOnInit() {
     this.addTodoForm = this.fb.group({
-      title: ['' , Validators.required ],
+      todoName: ['' , Validators.required ],
       description: [ '' , Validators.required ],
       time: ['' , [Validators.required]]
     });
-    this.todoList = this.todoService.getTodoList();
+    this.todoService.getTodoList().subscribe(response => {
+      this.todoList = response;
+    });
   }
 
   /*
     Adds TODO
    */
-  addTodo(){
+  addTodo() {
     console.log(this.addTodoForm);
     if (this.addTodoForm.valid) {
       const eventDateInMillis = Date.parse(this.addTodoForm.controls.time.value + '');
       const todayDateInMillis = Date.parse(new Date() + '');
       //Stops execution when event time is less than or equal to current time
       if (eventDateInMillis <= todayDateInMillis) {
-        this.dialog.open(EventDialogComponent, {
-          data: {
-            message: 'Event Time should be greater than current time'
-          }
-        });
+        this.todoService.messageDialogBox('Event Time should be greater than current time');
         return ;
       }
       const todoData = {
-        id: this.todoList.length > 0 ? this.todoList[this.todoList.length - 1].id + 1 : 1,
-        title: this.addTodoForm.controls.title.value,
+        todoName: this.addTodoForm.controls.todoName.value,
         description: this.addTodoForm.controls.description.value,
-        time: eventDateInMillis,
-        checked: false
+        time: eventDateInMillis
       }
-      this.todoService.addsToTodoList(todoData);
-      this.dialog.open(EventDialogComponent, {
-        data: {
-          message: 'Added Successfully'
-          }
-        });
-      this.router.navigate(['/list']);
-      this.addTodoForm.reset();
-      this.ngOnInit();
+      this.todoService.addTodo(todoData).subscribe(res => {
+        this.todoService.messageDialogBox('Added Successfully');
+        this.router.navigate(['/list']);
+        this.addTodoForm.reset();
+      }, error1 => {
+        this.todoService.messageDialogBox('Some Internal Error Occured');
+      });
     } else {
       //Triggers all required field error if any field is left empty
-      this.addTodoForm.controls.title.markAsTouched();
+      this.addTodoForm.controls.todoName.markAsTouched();
       this.addTodoForm.controls.description.markAsTouched();
       this.addTodoForm.controls.time.markAsTouched();
     }
   }
-
 }

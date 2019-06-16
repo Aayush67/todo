@@ -3,8 +3,11 @@ TODO Model
 */
 export interface Todo {
   id: number;
-  title: string;
+  todoName: string;
   description: string;
   time: number;
   checked: boolean;
 }
+/*
+Checked property is used to delete multiple items
+*/

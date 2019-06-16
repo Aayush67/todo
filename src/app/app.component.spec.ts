@@ -23,10 +23,10 @@ describe('AppComponent', () => {
   it(`should have as title 'todo'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('todo');
+    expect(app.todoName).toEqual('todo');
   });
 
-  it('should render title in a h1 tag', () => {
+  it('should render todoName in a h1 tag', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;

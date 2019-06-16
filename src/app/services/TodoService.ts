@@ -1,44 +1,72 @@
 import { Injectable } from '@angular/core';
 import {Todo} from '../model/Todo';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {environment} from '../../environments/environment';
+import {EventDialogComponent} from '../dialog/eventDialog.component';
+import {MatDialog} from '@angular/material';
 @Injectable({
   providedIn: 'root',
 })
 export class TodoService {
   todoList: Todo [];
-  updateTodo: Todo;
-  constructor() {
+  todoToUpdate: Todo;
+  constructor(private http: HttpClient, private dialog: MatDialog) {
     this.todoList = [];
   }
 /*
   Returns a list of todos
 */
-  getTodoList(): Todo[] {
-    return this.todoList;
+  getTodoList(): Observable<any> {
+    return this.http.get(environment.apiUrl + '/getAllTodos');
   }
-
 /*
-Sets updated list of todos
+  Add Todo
 */
-  setTodoList(newTodoList: Todo[]): void {
-    this.todoList = newTodoList;
-  }
-
-/*
-  Adds an item to the list of todos
-*/
-  addsToTodoList(data): void {
-   this.todoList.push(data);
+  addTodo(data): Observable <any> {
+    return this.http.post(environment.apiUrl + '/addTodo', data);
+   // this.todoList.push(data);
   }
 /*
 Record an item that is to be updated
 */
   setItemToUpdate(data): void {
-    this.updateTodo = data;
+    this.todoToUpdate = data;
   }
 /*
   Returns an item that is to be updated
 */
   getItemToUpdate(): Todo {
-    return this.updateTodo;
+    return this.todoToUpdate;
+  }
+/*
+Delete a Todo item
+*/
+  deleteTodo(id): Observable<any> {
+    return this.http.delete(environment.apiUrl + '/deleteTodo/' + id);
+  }
+
+/*
+  Update Todo Item
+*/
+  updateTodo(data): Observable<any> {
+    return this.http.put(environment.apiUrl + '/updateTodo/', data);
+  }
+
+/*
+  Delete Multiple Todos
+*/
+  deleteMultipleTodos(idList): Observable<any> {
+  return this.http.delete(environment.apiUrl + '/deleteMultipleTodos/' + idList);
+  }
+/*
+Dialog Box to display messages
+*/
+  messageDialogBox(dialogMessage) {
+    this.dialog.open(EventDialogComponent, {
+      data: {
+        message: dialogMessage
+      }
+    });
   }
 }

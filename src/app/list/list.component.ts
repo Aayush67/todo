@@ -2,7 +2,6 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {Todo} from '../model/Todo';
 import {TodoService} from '../services/TodoService';
 import {Router} from '@angular/router';
-import {BehaviorSubject} from 'rxjs';
 import {EventDialogComponent} from '../dialog/eventDialog.component';
 import {MatDialog, MatPaginator, MatTableDataSource} from '@angular/material';
 
@@ -13,24 +12,34 @@ import {MatDialog, MatPaginator, MatTableDataSource} from '@angular/material';
 })
 export class ListTodoComponent implements OnInit {
   todoList: Todo [];
-  displayedColumns: string[] = ['select', 'id', 'title', 'description', 'time' , 'actions'];
-  // dataSource = new BehaviorSubject([]);
+  displayedColumns: string[] = ['select', 'id', 'todoName', 'description', 'time' , 'actions'];
   dataSource = new MatTableDataSource<Todo>();
   @ViewChild(MatPaginator) paginator: MatPaginator;
-
-
   constructor(private todoService: TodoService, private router: Router , private dialog: MatDialog) { }
 
 /*
-  Gets list of todos on page load
+  Refreshes todos list on page load
 */
   ngOnInit() {
-    this.todoList = this.todoService.getTodoList();
-    this.dataSource = new MatTableDataSource(this.todoList);
-    this.dataSource.paginator = this.paginator;
-    console.log(this.dataSource);
+    this.refreshTodoList();
+  }
 
-    // this.dataSource.next(this.todoList);
+/*
+  Reloads TodoList On Deletion/Updation
+*/
+  refreshTodoList() {
+    this.todoService.getTodoList().subscribe(response => {
+      this.todoList = response;
+      this.todoList.forEach( todo => {
+        todo.checked = false;
+      })
+      if (this.todoList.length === 0) {
+        this.router.navigate(['/add']);
+      }
+
+      this.dataSource = new MatTableDataSource(this.todoList);
+      this.dataSource.paginator = this.paginator;
+    });
   }
 
 /*
@@ -44,16 +53,12 @@ export class ListTodoComponent implements OnInit {
 /*
   Delete an item from a list of todos
 */
-  deleteSingleTodoItem(item) {
-    const indexOfDeleteTodo = this.todoList.indexOf(item);
-    this.todoList.splice(indexOfDeleteTodo, 1);
-    this.dataSource = new MatTableDataSource(this.todoList);
-
-    //Detect changes on deletion of todo and update mat-table
-    // this.dataSource.next(this.todoList);
-    if (this.todoList.length === 0) {
-      this.router.navigate(['/add']);
-    }
+  deleteSingleTodoItem(id) {
+    this.todoService.deleteTodo(id).subscribe( res => {
+      this.refreshTodoList();
+    }, error1 => {
+      this.todoService.messageDialogBox('Some Internal Error Occured');
+    });
   }
 
 /*
@@ -61,30 +66,29 @@ export class ListTodoComponent implements OnInit {
 */
   toggleCheckBox(element) {
       element.checked = !element.checked;
+      console.log(element);
   }
+
 /*
   Deletes all checked item from list of todos
 */
   deleteMultipleTodoItem() {
     let atLeastOneIsChecked = false;
-    this.todoList = this.todoList.filter(todo => {
+    const idListToDelete = [];
+    this.todoList.forEach( todo => {
       if (todo.checked) {
         atLeastOneIsChecked = true;
+        idListToDelete.push(todo.id);
       }
-      return !todo.checked;
-    })
-    this.dataSource = new MatTableDataSource(this.todoList);
-    this.todoService.setTodoList(this.todoList);
-    // this.dataSource.next(this.todoList);
+    });
     if (!atLeastOneIsChecked) {
-      this.dialog.open(EventDialogComponent, {
-        data: {
-          message: 'At least one Item needs to be selected'
-        }
+      this.todoService.messageDialogBox('At least one Item needs to be selected');
+    }  else {
+      this.todoService.deleteMultipleTodos(idListToDelete).subscribe(res => {
+        this.refreshTodoList();
+      }, error1 => {
+        this.todoService.messageDialogBox('Some Internal Error Occured');
       });
-    }
-    if (this.todoList.length === 0) {
-      this.router.navigate(['/add']);
     }
   }
 }

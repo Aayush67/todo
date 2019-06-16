@@ -20,6 +20,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import { UpdateTodoComponent } from './update/update.component';
 import {OWL_DATE_TIME_LOCALE, OwlDateTimeModule, OwlNativeDateTimeModule} from 'ng-pick-datetime';
 import {EventDialogComponent} from './dialog/eventDialog.component';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -34,6 +35,7 @@ import {EventDialogComponent} from './dialog/eventDialog.component';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     MatToolbarModule,
     ReactiveFormsModule,
     MatInputModule,
