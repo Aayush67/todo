@@ -37,8 +37,6 @@ Now the app is ready to start
 9. Remember that to delete single todo you don't need mark the checkbox , it can be done with delete button.
 10. Currently server is running on url `http://localhost:8085/quizapp` which we have configured in environment.ts file in environment
     directory.
-    
-## 
 
 ## Build
 
